@@ -40,7 +40,7 @@ RUN for repo in \
             git clone "$repo"; \
         fi; \
         if [ -f "/comfyui/custom_nodes/$repo_dir/requirements.txt" ]; then \
-            pip install -r "/ComfyUI/custom_nodes/$repo_dir/requirements.txt"; \
+            pip install -r "/comfyui/custom_nodes/$repo_dir/requirements.txt"; \
         fi; \
         if [ -f "/comfyui/custom_nodes/$repo_dir/install.py" ]; then \
             python "/comfyui/custom_nodes/$repo_dir/install.py"; \
