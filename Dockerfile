@@ -79,21 +79,21 @@ RUN for repo in \
     https://github.com/kijai/ComfyUI-WanVideoWrapper.git \
     https://github.com/chflame163/ComfyUI_LayerStyle_Advance.git \
     https://github.com/BadCafeCode/masquerade-nodes-comfyui.git \
-    https://github.com/1038lab/ComfyUI-RMBG.git \
+    https://github.com/1038lab/ComfyUI-RMBG.git \ 
     https://github.com/M1kep/ComfyLiterals.git; \
     do \
-        cd /comfyui/custom_nodes; \
+        cd /ComfyUI/custom_nodes; \
         repo_dir=$(basename "$repo" .git); \
         if [ "$repo" = "https://github.com/ssitu/ComfyUI_UltimateSDUpscale.git" ]; then \
             git clone --recursive "$repo"; \
         else \
             git clone "$repo"; \
         fi; \
-        if [ -f "/comfyui/custom_nodes/$repo_dir/requirements.txt" ]; then \
-            pip install -r "/comfyui/custom_nodes/$repo_dir/requirements.txt"; \
+        if [ -f "/ComfyUI/custom_nodes/$repo_dir/requirements.txt" ]; then \
+            pip install -r "/ComfyUI/custom_nodes/$repo_dir/requirements.txt"; \
         fi; \
-        if [ -f "/comfyui/custom_nodes/$repo_dir/install.py" ]; then \
-            python "/comfyui/custom_nodes/$repo_dir/install.py"; \
+        if [ -f "/ComfyUI/custom_nodes/$repo_dir/install.py" ]; then \
+            python "/ComfyUI/custom_nodes/$repo_dir/install.py"; \
         fi; \
     done
 
