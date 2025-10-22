@@ -1,5 +1,55 @@
-# start from a clean base image (replace <version> with the desired release)
-FROM runpod/worker-comfyui:5.5.0-base
+# Use multi-stage build with caching optimizations
+FROM nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04 AS base
+
+# Consolidated environment variables
+ENV DEBIAN_FRONTEND=noninteractive \
+   PIP_PREFER_BINARY=1 \
+   PYTHONUNBUFFERED=1 \
+   CMAKE_BUILD_PARALLEL_LEVEL=8
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        python3.12 python3.12-venv python3.12-dev \
+        python3-pip \
+        curl ffmpeg ninja-build git aria2 git-lfs wget vim \
+        libgl1 libglib2.0-0 build-essential gcc && \
+    \
+    # make Python3.12 the default python & pip
+    ln -sf /usr/bin/python3.12 /usr/bin/python && \
+    ln -sf /usr/bin/pip3 /usr/bin/pip && \
+    \
+    python3.12 -m venv /opt/venv && \
+    \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Use the virtual environment
+ENV PATH="/opt/venv/bin:$PATH"
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --pre torch torchvision torchaudio \
+        --index-url https://download.pytorch.org/whl/nightly/cu128
+
+# Core Python tooling
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install packaging setuptools wheel
+
+# Runtime libraries
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install pyyaml gdown triton comfy-cli jupyterlab jupyterlab-lsp \
+        jupyter-server jupyter-server-terminals \
+        ipykernel jupyterlab_code_formatter
+
+# ------------------------------------------------------------
+# ComfyUI install
+# ------------------------------------------------------------
+RUN --mount=type=cache,target=/root/.cache/pip \
+    /usr/bin/yes | comfy --workspace /ComfyUI install
+
+FROM base AS final
+# Make sure to use the virtual environment here too
+ENV PATH="/opt/venv/bin:$PATH"
+RUN pip install opencv-python
 
 RUN for repo in \
     https://github.com/ssitu/ComfyUI_UltimateSDUpscale.git \
@@ -47,4 +97,18 @@ RUN for repo in \
         fi; \
     done
 
+ENV TORCH_CUDA_ARCH_LIST="8.9;9.0"
+WORKDIR /
+RUN git clone https://github.com/thu-ml/SageAttention.git
+WORKDIR /SageAttention
+RUN sed -i "/compute_capabilities = set()/a compute_capabilities = {\"$TORCH_CUDA_ARCH_LIST\"}" setup.py
+RUN python setup.py install
+RUN pip install flash_attn==2.7.4.post1 --no-build-isolation
+
+COPY src/extra_model_paths.yaml /ComfyUI/extra_model_paths.yaml
+COPY src/start.sh /start.sh
+RUN chmod +x /start_script.sh
 COPY 4xLSDIR.pth /4xLSDIR.pth
+COPY handler.py /handler.py
+
+CMD ["/start_script.sh"]
