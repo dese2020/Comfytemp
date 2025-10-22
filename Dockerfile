@@ -107,8 +107,8 @@ RUN pip install flash_attn==2.7.4.post1 --no-build-isolation
 
 COPY src/extra_model_paths.yaml /ComfyUI/extra_model_paths.yaml
 COPY src/start.sh /start.sh
-RUN chmod +x /start_script.sh
+RUN chmod +x /start.sh
 COPY 4xLSDIR.pth /4xLSDIR.pth
 COPY handler.py /handler.py
 
-CMD ["/start_script.sh"]
+CMD ["/start.sh"]
