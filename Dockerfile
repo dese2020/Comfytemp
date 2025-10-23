@@ -36,9 +36,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Runtime libraries
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install pyyaml gdown triton comfy-cli jupyterlab jupyterlab-lsp \
-        jupyter-server jupyter-server-terminals \
-        ipykernel jupyterlab_code_formatter
+    pip install pyyaml gdown triton comfy-cli ipykernel 
 
 # ------------------------------------------------------------
 # ComfyUI install
@@ -103,7 +101,7 @@ RUN git clone https://github.com/thu-ml/SageAttention.git
 WORKDIR /SageAttention
 RUN sed -i "/compute_capabilities = set()/a compute_capabilities = {\"$TORCH_CUDA_ARCH_LIST\"}" setup.py
 RUN python setup.py install
-RUN pip install flash_attn==2.7.4.post1 --no-build-isolation
+#RUN pip install flash_attn==2.7.4.post1 --no-build-isolation
 
 COPY src/extra_model_paths.yaml /ComfyUI/extra_model_paths.yaml
 COPY src/start.sh /start.sh
