@@ -53,7 +53,10 @@ RUN for repo in \
             python "/ComfyUI/custom_nodes/$repo_dir/install.py"; \
         fi; \
     done
-
+git clone https://github.com/thu-ml/SageAttention.git
+cd SageAttention
+git reset --hard 68de379
+pip install -e .
 
 COPY src/extra_model_paths.yaml /ComfyUI/extra_model_paths.yaml
 COPY src/start.sh /start.sh
