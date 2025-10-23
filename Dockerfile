@@ -4,6 +4,10 @@ RUN pip install runpod websocket-client
 
 WORKDIR /
 
+RUN git clone https://github.com/comfyanonymous/ComfyUI.git && \
+    cd /ComfyUI && \
+    pip install -r requirements.txt
+
 RUN for repo in \
     https://github.com/ssitu/ComfyUI_UltimateSDUpscale.git \
     https://github.com/kijai/ComfyUI-KJNodes.git \
