@@ -55,7 +55,7 @@ RUN for repo in \
     done
 
 RUN git clone https://github.com/thu-ml/SageAttention.git && \
-    cd /SageAttention && \
+    cd /SageAttention2 && \
     git reset --hard 68de379 && \
     pip install -e .
 
